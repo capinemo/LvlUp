@@ -1,0 +1,13 @@
+@TASK
+
+@TAG
+js | nodejs
+
+@QUESTION
+It is test file?
+
+@ANSWER [rand]
++ yes
+- no
+
+@END

@@ -5,7 +5,7 @@ function checkIt(item, index, def_fn, def_assert) {
         check = item.assert ? item.assert : def_assert,
         task;
 
-    task = '(' + (index + 1) + ') ' + 'CHECK: ' + fn.name + '(' + item.params.join(',') + ')'
+    task = '(' + (index + 1) + ') ' + 'CHECK: ' + fn.name + '(' + item.params.join(', ') + ')'
         + '\n\t' + 'RETURNS: '
         + ((check === 'throws') ? '(ERROR) ' + item.returns.source : JSON.stringify(item.returns));
 
