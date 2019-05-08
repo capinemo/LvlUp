@@ -83,13 +83,23 @@ function parseFileForTags ($file) {
     });
 }
 
-function findDirectivesInChunk (str, offset = 0) {
+/**
+ * Searching @-directives in the given string. Returns list of the directives with its position in the string
+ *
+ * @param str string            String for searching directives
+ * @param offset integer        Chunk position offset
+ */
+function findDirectivesInChunk (str = '', offset = 0) {
     const directives = ['task', 'tag', 'question', 'answer', 'end'],
         markers = {};
 
     let substr_list = {substr_10: null, substr_8: null, substr_6: null, substr_5: null, substr_4: null, substr_3: null},
         margin = 0,
         mark;
+
+    if (typeof str !== 'string') {
+        throw Error('parser.findDirectivesInChunk: not string given in first argument')
+    }
 
     while( ~(mark = str.indexOf('@', margin)) ) {
         let directive_found= false;
@@ -102,10 +112,9 @@ function findDirectivesInChunk (str, offset = 0) {
         substr_list.substr_3 = substr_list.substr_4.substr(0, 3);
 
         for (let i = directives.length; i--; ) {
-            let item = directives[i],
-                len = item.length;
+            let item = directives[i];
 
-            if (item !== substr_list['substr_' + len]) {
+            if (item !== substr_list['substr_' + item.length]) {
                 continue;
             }
 
@@ -138,4 +147,10 @@ exports.loadTasksTags = function () {
     findTestFilesInDir((file) => {
         parseFileForTags(file);
     });
+};
+
+exports.test = {
+    findTestFilesInDir: findTestFilesInDir,
+    parseFileForTags: parseFileForTags,
+    findDirectivesInChunk: findDirectivesInChunk
 };
