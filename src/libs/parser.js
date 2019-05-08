@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-exports.test_path = './list';
+exports.test_path = './list/';
 exports.tag_list = {};
 exports.buff_length = 111;
+exports.echo_mode = 'work'; // work | test
 
 /**
  * Recursively finds *.test files in directory and applies callback function to every file
@@ -14,10 +15,14 @@ exports.buff_length = 111;
  */
 function findTestFilesInDir (callback, path = exports.test_path) {
     // TODO check rights and log it
+    // Add last / to given path
+
+    if (typeof callback !== 'function') {
+        throw new Error('parser.findTestFilesInDir: not function given in callback');
+    }
 
     if (!fs.existsSync(path)) {
-        return console.log('\x1b[31m' + 'Directory of tests list is not exists. Run ' + '\x1b[7m'
-            + 'lvlup --help' + '\x1b[0m\x1b[31m' + ' for mor information.' + '\x1b[0m');
+        throw new Error('parser.findTestFilesInDir: given path not exists');
     }
 
     fs.readdir(path, {withFileTypes : true}, (err, files) => {
@@ -25,24 +30,29 @@ function findTestFilesInDir (callback, path = exports.test_path) {
             return console.log('\x1b[31m' + err + '\x1b[0m');
         }
 
-        if (!files) {
-            return console.log('\x1b[31' + 'Directory is empty' + '\x1b[0m');
+        if (!files.length) {
+            return;
         }
 
         files.forEach(function (i) {
             if (i.isDirectory()) {
-                return findTestFilesInDir(callback,path + '/' + i.name);
+                return findTestFilesInDir(callback,path + i.name + '/');
             }
 
             if (i.isFile() && /\.test$/.test(i.name)) {
                 callback(path + '/' + i.name);
-                return console.log('\x1b[32m' + 'LOADED' + '\x1b[0m: ' + path + '/' + i.name);
+
+                if (exports.echo_mode === 'work') {
+                    console.log('\x1b[32m' + 'LOADED' + '\x1b[0m: ' + path  + i.name);
+                }
+                return;
             }
 
-            return console.log('\x1b[33m' + 'IGNORED' + '\x1b[0m: ' + path + '/' + i.name);
+            if (exports.echo_mode === 'work') {
+                console.log('\x1b[33m' + 'IGNORED' + '\x1b[0m: ' + path + i.name);
+            }
+            return;
         });
-
-
     })
 }
 
@@ -66,8 +76,11 @@ function parseFileForTags ($file) {
     stream.on('data', (chunk) => {
         let buffer = Buffer.from(chunk);
 
-        console.log('START: ', count);
-        console.log(findDirectivesInChunk(chunk, count * exports.buff_length));
+        if (exports.echo_mode === 'work') {
+            console.log('START: ', count);
+        }
+
+        //console.log(findDirectivesInChunk(chunk, count * exports.buff_length));
         //console.log(buffer);
 
         //let view   = new Uint8Array(buffer);
@@ -98,7 +111,7 @@ function findDirectivesInChunk (str = '', offset = 0) {
         mark;
 
     if (typeof str !== 'string') {
-        throw Error('parser.findDirectivesInChunk: not string given in first argument')
+        throw new Error('parser.findDirectivesInChunk: not string given in first argument')
     }
 
     while( ~(mark = str.indexOf('@', margin)) ) {
@@ -118,7 +131,7 @@ function findDirectivesInChunk (str = '', offset = 0) {
                 continue;
             }
 
-            if (!markers[item]) {
+            if (!markers[item]) { // TODO cover
                 markers[item] = [];
             }
 
@@ -128,7 +141,7 @@ function findDirectivesInChunk (str = '', offset = 0) {
         }
 
         if (!directive_found) {
-            if (!markers._hunch) {
+            if (!markers._hunch) { // TODO cover
                 markers._hunch = [];
             }
 
