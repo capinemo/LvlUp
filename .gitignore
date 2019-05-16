@@ -1,5 +1,6 @@
-/.idea
-/.git
-/node_modules
-/build
+.idea/
+.git/
+node_modules/
+build/
+.nyc_output/
 package-lock.json
