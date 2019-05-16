@@ -1,0 +1,14 @@
+@TASK
+@TAG [tags delimited with |]
+@AREA [testing area]
+@LEVEL [difficulty from 1 to 10]
+@LANG [short language tag]
+@QUESTION
+[question content]
+@ANSWER [answer parameters]
+- [incorrect response]
+- [another incorrect response]
++ [correct response]
++ [another correct response]
+- [last incorrect response]
+@END
